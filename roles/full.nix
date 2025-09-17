@@ -1,91 +1,13 @@
 
-#       ███╗   ██╗██╗██╗  ██╗ ██████╗ ███████╗     ██████╗ ██████╗ ███╗   ██╗███████╗██╗ ██████╗ 
-#       ████╗  ██║██║╚██╗██╔╝██╔═══██╗██╔════╝    ██╔════╝██╔═══██╗████╗  ██║██╔════╝██║██╔════╝ 
-#       ██╔██╗ ██║██║ ╚███╔╝ ██║   ██║███████╗    ██║     ██║   ██║██╔██╗ ██║█████╗  ██║██║  ███╗
-#       ██║╚██╗██║██║ ██╔██╗ ██║   ██║╚════██║    ██║     ██║   ██║██║╚██╗██║██╔══╝  ██║██║   ██║
-#       ██║ ╚████║██║██╔╝ ██╗╚██████╔╝███████║    ╚██████╗╚██████╔╝██║ ╚████║██║     ██║╚██████╔╝
-#       ╚═╝  ╚═══╝╚═╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝     ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝     ╚═╝ ╚═════╝ 
+#      ███████╗██╗   ██╗██╗     ██╗         ██████╗ ██╗  ██╗ ██████╗ ███████╗
+#      ██╔════╝██║   ██║██║     ██║         ██╔══██╗██║ ██╔╝██╔════╝ ██╔════╝
+#      █████╗  ██║   ██║██║     ██║         ██████╔╝█████╔╝ ██║  ███╗███████╗
+#      ██╔══╝  ██║   ██║██║     ██║         ██╔═══╝ ██╔═██╗ ██║   ██║╚════██║
+#      ██║     ╚██████╔╝███████╗███████╗    ██║     ██║  ██╗╚██████╔╝███████║
+#     ╚═╝      ╚═════╝ ╚══════╝╚══════╝    ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚══════╝
 
-                                    # minimal configuration
+{ config, pkgs, ... }:
 
-{ config, lib, pkgs, ... }:
-
-{
-  imports =
-    [ # include the results of the hardware scan
-      ./hardware-configuration.nix
-    ];
-
-#  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-  nix.settings.auto-optimise-store = true;
-
-# ░█▀▄░█▀█░█▀█░▀█▀░░░░
-# ░█▀▄░█░█░█░█░░█░░░▀░
-# ░▀▀░░▀▀▀░▀▀▀░░▀░░░▀░
-
-  # bootloader
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-  boot.loader.timeout = 1;
-  boot.kernelParams = [ "random.trust_cpu=on" ];
-  
-  # ensure latest linux kernel is installed (disable for nvidia drivers)
-  boot.kernelPackages = pkgs.linuxPackages_latest;
-
-  networking.hostName = "CHANGEME";
-  networking.networkmanager.enable = true;
-# networking.wireless.enable = true;  # alt wireless support via wpa_supplicant
-
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
-
-# ░█░█░█▀█░█▀▄░█▀▄░█░█░█▀█░█▀▄░█▀▀░░░░
-# ░█▀█░█▀█░█▀▄░█░█░█▄█░█▀█░█▀▄░█▀▀░░▀░
-# ░▀░▀░▀░▀░▀░▀░▀▀░░▀░▀░▀░▀░▀░▀░▀▀▀░░▀░
-
-  # enable sound
-  services.pipewire = {
-    enable = true;
-    pulse.enable = true;
-  };
-
-  # enable opengl
-  hardware.graphics = {
-    enable = true;
-  };
-
-  hardware.bluetooth.enable = true; # enables support for bluetooth
-  hardware.bluetooth.powerOnBoot = true; # powers up the default bluetooth controller on boot
-
-# ░█░█░█▀▀░█▀▀░█▀▄░░░░
-# ░█░█░▀▀█░█▀▀░█▀▄░░▀░
-# ░▀▀▀░▀▀▀░▀▀▀░▀░▀░░▀░
-
-  # define user account
-  users.users = {
-    y2k = {
-     initialPassword = "temp";
-     isNormalUser = true;
-     extraGroups = [ "wheel" "networkmanager" "audio" "video" "docker" ]; # sudo, the rest are self expl.
-     packages = with pkgs; [];
-   };
-  };
-
-  # adding y2k to wheel wasn't enough so...voilà
-  security.sudo.configFile = "y2k ALL=(ALL:ALL) SETENV: ALL";
-
-  # set the time zone (wrong place, right time)
-  time.timeZone = "America/Winnipeg";
-
-# ░█▀▀░█▀█░█▀█░▀█▀░█▀▀░░░░
-# ░█▀▀░█░█░█░█░░█░░▀▀█░░▀░
-# ░▀░░░▀▀▀░▀░▀░░▀░░▀▀▀░░▀░
-
-  fonts.packages = with pkgs; [
-    nerd-fonts.hack
-    nerd-fonts.jetbrains-mono
-  ];
 
 # ░█▀█░█▀█░█▀▀░█░█░█▀█░█▀▀░█▀▀░█▀▀░░░░
 # ░█▀▀░█▀█░█░░░█▀▄░█▀█░█░█░█▀▀░▀▀█░░▀░
@@ -105,8 +27,12 @@
 
                     # main
     foot #---------------------------------# terminal
+    alacritty #----------------------------# terminal
     micro #--------------------------------# text editor
-    vscodium #-----------------------------# text editor
+    vscodium #-----------------------------# IDE
+    python3Full #--------------------------# python lang
+    rustup #-------------------------------# rust lang
+    obsidian #-----------------------------# note taking
     firefox #------------------------------# web browser
     feh #----------------------------------# image viewer
     mpv #----------------------------------# media player
@@ -114,6 +40,7 @@
     ncspot #-------------------------------# TUI music player
     qalculate-qt #-------------------------# calculator
     ventoy-full #--------------------------# create bootable USB's
+    vesktop #------------------------------# discord alternative
     ulauncher #----------------------------# search & run programs
     git #----------------------------------# version control sys
     wget #---------------------------------# world wide web get
@@ -121,12 +48,22 @@
     jq #-----------------------------------# JSON processor    
     socat #--------------------------------# SOcket CAT
     killall #------------------------------# process termination
+    nixos-generators #---------------------# generates custom ISOs
+
+                  # gaming
+    mangohud #-----------------------------# performance monitor
+    protonup-qt #--------------------------# compatability layer
+    heroic #-------------------------------# compatability layer
+    prismlauncher #------------------------# minecraft launcher
 
                   # storage
     ranger #-------------------------------# CLI file manager
     lxqt.pcmanfm-qt #----------------------# file manager
     file-roller #--------------------------# GUI extraction tool
-    unzip #--------------------------------# CLI extraction tool             
+    unzip #--------------------------------# CLI extraction tool 
+    unrar-free #---------------------------# CLI RAR extaction tool  
+    unetbootin #---------------------------# bootable drive maker     
+    cdrtools #-----------------------------# variety of cd,dvd, and boot tools     
     ncdu #---------------------------------# disk usage analyzer
     dysk #---------------------------------# disk usage analyzer   
     usbutils #-----------------------------# usb tools
@@ -135,10 +72,14 @@
     lsd #----------------------------------# next gen ls
 
                     # fun
+    astroterm #----------------------------# celestial viewer
+    pipes #--------------------------------# terminal screensaver
+    lolcat #-------------------------------# rainbow echo
     fastfetch #----------------------------# system information
 
              # desktop environment
     swww #---------------------------------# wallpaper daemon
+    hyprpaper #----------------------------# wallpaper backend for waypaper
     waypaper #-----------------------------# GUI wallpaper setter
     waybar #-------------------------------# status bar
     hyprpicker #---------------------------# color picker
@@ -151,7 +92,7 @@
     bluez #--------------------------------# bluetooth protocol stack
     bluetui #------------------------------# tui bluetooth manager
     brightnessctl #------------------------# self explanatory
-    wdisplays #----------------------------# GUI display manager
+ #  wdisplays #----------------------------# GUI display manager
  #  opentabletdriver #---------------------# tablet management
  #  openrgb #------------------------------# FOSS rgb control
     via #----------------------------------# keyboard configurator
@@ -172,6 +113,7 @@
     gowall #-------------------------------# convert wallpaper to theme
 
            # dependencies & portals
+    clang #--------------------------------# c compiler / linker
     egl-wayland #--------------------------# backend for wayland
     glm #----------------------------------# dependancy for hyprgrass
     libnotify #----------------------------# dependancy for swaync 
@@ -179,6 +121,10 @@
     xdg-desktop-portal-gtk #---------------# backend for GTK apps
     xdg-desktop-portal-hyprland #----------# backend for hyprland
     kdePackages.xdg-desktop-portal-kde #---# backend for Qt/KDE apps
+    python312Packages.textual #------------# TUI framework for python
+    gettext #------------------------------# translation tools (envsubst for vintagestory)
+    dotnetCorePackages.runtime_8_0-bin #---# .NET runtime 8 for vintagestory
+    protontricks #-------------------------# proton features
   ];
 
 # ░█▀█░█▀▄░█▀█░█▀▀░█▀▄░█▀█░█▄█░█▀▀░░░░
@@ -203,12 +149,6 @@
 # ░▀▀█░█▀▀░█▀▄░▀▄▀░░█░░█░░░█▀▀░▀▀█░░▀░
 # ░▀▀▀░▀▀▀░▀░▀░░▀░░▀▀▀░▀▀▀░▀▀▀░▀▀▀░░▀░
 
-  # set maximum systemd log file size
-  services.journald.extraConfig = "SystemMaxUse=50M";
-
-  # disable wait for connection to boot
-  systemd.services.NetworkManager-wait-online.enable = false;
-
   # enable greetd w tuigreet frontend
   services.greetd.enable = true;
   services.greetd.settings = {
@@ -231,52 +171,18 @@
     };
   };
 
-  # enable nvidia drivers
-  # services.xserver.videoDrivers = ["nvidia"];
-
-  # enable storage services
-  services.gvfs.enable = true;
-  services.udisks2.enable = true;
-
   # enable openrgb
   services.hardware.openrgb.enable = true;
-
-  # enable CUPS to print documents
-  # services.printing.enable = true;
-
-  # enable flatpak (ik :/ it's just for spicetify)
-  services.flatpak.enable = true;
-
-  # Enable the X11 windowing system.
-  # services.xserver.enable = true;
-
-  # Configure keymap in X11
-  # services.xserver.xkb.layout = "us";
-  # services.xserver.xkb.options = "eurosign:e,caps:escape";
-
-  # enable the OpenSSH daemon
-  # services.openssh.enable = true;
-
-# ░█▀▀░▀█▀░█▀▄░█▀▀░█░█░█▀█░█░░░█░░░░░░
-# ░█▀▀░░█░░█▀▄░█▀▀░█▄█░█▀█░█░░░█░░░░▀░
-# ░▀░░░▀▀▀░▀░▀░▀▀▀░▀░▀░▀░▀░▀▀▀░▀▀▀░░▀░
-
-  networking.firewall = {
-    enable = true;
-    allowedTCPPorts = [];
-    allowedUDPPorts = [];
-  };
 
 
 # ░█▀▄░█▀█░█▀▀░█░█░█▀▀░█▀▄░░░░
 # ░█░█░█░█░█░░░█▀▄░█▀▀░█▀▄░░▀░
 # ░▀▀░░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀░▀░░▀░
 
-#  virtualisation.docker = {
-#  	enable = true;
-#  	rootless.enable = true;
-#  };
-
+  virtualisation.docker = {
+  	enable = true;
+  	rootless.enable = true;
+  };
 
 # ░█▀█░▀█▀░█░█░█▀▀░█▀▄░░░░
 # ░█░█░░█░░█▀█░█▀▀░█▀▄░░▀░
@@ -295,9 +201,6 @@
   #qt.enable = true;
 
   environment.sessionVariables = {
-    NIXOS_OZONE_WL = "1";
+    NIXOS_OZONE_WL = "1"; # for vencord/vesktop and any other electron based pkgs
+    PYTHONHISTFILE = "$HOME/.cache/.python_history"; # relocate file that tries to reside in $HOME
   };
-
-  system.stateVersion = "24.11"; # leave ts alone
-
-}
