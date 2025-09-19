@@ -6,6 +6,7 @@ set -euo pipefail
 REPO_DIR="/tmp/nix-bootstrap"
 DOTFILES_REPO="https://github.com/0lswitcher/dotfiles.git"
 NIXFILES_REPO="https://github.com/0lswitcher/nixfiles.git"
+WALLPAPERS_REPO-"https://github.com/0lswitcher/wallpapers.git"
 NIXOS_DIR="/etc/nixos"
 
 prompt() {
@@ -17,7 +18,7 @@ prompt() {
     echo "$message" >&2  # send prompt to stderr so it doesn't interfere with return value
     select choice in "${options[@]}"; do
         if [[ -n "$choice" ]]; then
-            echo "$choice"  # goes to stdout and will be captured
+            echo "$choice"  # goes to stdout
             return 0
         else
             echo "Invalid choice. Please try again." >&2
@@ -82,7 +83,16 @@ if [[ -z "$TARGET_HOST" ]]; then
 fi
 echo "Selected Hostname: $TARGET_HOST"
 
-# extract stateVersion from existing configuration.nix BEFORE overwriting it
+# wallpaper prompt
+BG_PULL=$(prompt "Would you like to include my wallpaper collection in your final build?" "Hell yeah" "Fuck no")
+if [ "$BG_PULL" = "Hell yeah" ]; then
+    echo "Sweet, pulling wallpapers from repository now..."
+    clone_or_update_repo "$WALLPAPERS_REPO" "/home/$TARGET_USER/stuff/pictures/backgrounds"
+else
+    echo "No worries, skipping wallpapers and moving on to dotfiles."
+fi
+
+# extract stateVersion from existing configuration.nix before overwriting it
 echo "Extracting system.stateVersion from existing configuration..."
 NIXOS_VER=$(grep "system.stateVersion" "$NIXOS_DIR/configuration.nix" 2>/dev/null || true)
 
@@ -129,15 +139,25 @@ TARGET_USER_HOME="/home/$TARGET_USER"
 # create the target user's home directory and .config if they don't exist
 sudo mkdir -p "$TARGET_USER_HOME/.config"
 
-# copy dotfiles to target user's home
+# copy dotfiles to target user's home and clean up after
 sudo cp -r "$REPO_DIR/dotfiles/dots/." "$TARGET_USER_HOME/.config/"
-
+sudo cp -r "$TARGET_USER_HOME/.config/cache/wal/" "$TARGET_USER_HOME/.cache/"
+sudo rm -rf "$TARGET_USER_HOME/.config/cache/"
 if [ "$HW_TYPE" = "Laptop" ]; then
     sudo rm -rf "$TARGET_USER_HOME/.config/waybar/"
     sudo cp -r "$TARGET_USER_HOME/.config/laptop-specific/waybar/" "$TARGET_USER_HOME/.config/"
     sudo rm -rf "$TARGET_USER_HOME/.config/laptop-specific/"
+else
+    sudo rm -rf "$TARGET_USER_HOME/.config/laptop-specific/"
 fi
-
+if [ "$INSTALL_TYPE" = "Server" ]; then
+    sudo rm -rf "$TARGET_USER_HOME/.config/hypr/"
+    sudo rm -rf "$TARGET_USER_HOME/.config/waybar/"
+    sudo rm -rf "$TARGET_USER_HOME/.config/laptop-specific/"
+    sudo rm -rf "$TARGET_USER_HOME/.config/qt6ct/"
+    sudo rm -rf "$TARGET_USER_HOME/.config/ulauncher/"
+fi
+sudo rm -rf "$TARGET_USER_HOME/.config/dots"
 echo "Dotfiles successfully applied to $TARGET_USER_HOME/.config/"
 
 # set proper ownership for the target user (this will work after rebuild when user exists)
@@ -153,16 +173,22 @@ echo "Fixing ownership of dotfiles after user creation..."
 sudo chown -R "$TARGET_USER:users" "/home/$TARGET_USER/"
 
 # exit message
-echo "Bootstrap complete. Reboot recommended."
+echo "#-------------------------------------------#"
+echo "Bootstrap complete. Reboot required."
+echo "NOTE: A force shutdown may be required!"
+echo ""
 echo "Your new user is: $TARGET_USER"
-echo "Default password is: temp"
-echo "Don't forget to run 'sudo passwd $TARGET_USER' to change the password!"
-echo " ~ If you're using an Nvidia GPU, take a look at base.nix before doing so-and do research, since Nvidia GPUs + Linux + Hyprland = Hell"
-
+echo "Your new hostname is: $TARGET_HOST"
+echo "Don't forget to run 'sudo passwd $TARGET_USER' if you want to change the password!"
+echo ""
+echo "If you're using an Nvidia GPU, take a look at the Nvidia section of the README from my nixfiles repo before proceeding:"
+echo "https://github.com/0lswitcher/nixfiles"
+echo "Nvidia GPUs + Linux + Hyprland = Hell, but it's easy to maintain once you get it up and running. Just get ready for some troubleshooting to start."
+echo ""
 if [ "$INSTALL_TYPE" = "Full" ]; then
     echo "Don't forget to add 'docker' to extraGroups in base.nix!"
 else
-    echo "Don't forget to add 'docker' to extraGroups in base.nix if you decide to enable it!"
+    echo "Don't forget to add 'docker' to extraGroups in base.nix if you ever decide to enable it!"
 fi
-
+echo ""
 echo "  Enjoy :) "
