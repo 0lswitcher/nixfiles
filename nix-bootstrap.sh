@@ -46,7 +46,7 @@ else
     MODE="Offline"
 fi
 
-echo "Selected mode: $MODE"  # Debug output
+echo "Selected mode: $MODE"  # debug output
 
 if [ "$MODE" = "Online" ]; then
     echo "Running in Online mode - cloning repositories..."
@@ -60,13 +60,29 @@ fi
 
 # install type
 INSTALL_TYPE=$(prompt "Select installation type:" "Server" "Minimal" "Full")
-echo "Selected installation type: $INSTALL_TYPE"  # Debug output
+echo "Selected installation type: $INSTALL_TYPE"  # debug output
 
 # hardware type
 HW_TYPE=$(prompt "Select hardware:" "Desktop" "Laptop")
-echo "Selected hardware type: $HW_TYPE"  # Debug output
+echo "Selected hardware type: $HW_TYPE"  # debug output
 
-# extract stateVersion from existing configuration.nix before overwriting it
+# get target username
+read -rp "Enter the username for your new user (this will replace 'changeme' in base.nix): " TARGET_USER
+if [[ -z "$TARGET_USER" ]]; then
+    echo "Error: Username cannot be empty"
+    exit 1
+fi
+echo "Selected username: $TARGET_USER"
+
+# get target hostname
+read -rp "Enter the new hostname for your machine (not to be confused w/ username): " TARGET_HOST
+if [[ -z "$TARGET_HOST" ]]; then
+    echo "Error: Hostname cannot be empty"
+    exit 1
+fi
+echo "Selected Hostname: $TARGET_HOST"
+
+# extract stateVersion from existing configuration.nix BEFORE overwriting it
 echo "Extracting system.stateVersion from existing configuration..."
 NIXOS_VER=$(grep "system.stateVersion" "$NIXOS_DIR/configuration.nix" 2>/dev/null || true)
 
@@ -74,6 +90,14 @@ NIXOS_VER=$(grep "system.stateVersion" "$NIXOS_DIR/configuration.nix" 2>/dev/nul
 echo "Generating configuration.nix with imports..."
 sudo cp "$REPO_DIR/nixfiles/base.nix" "$NIXOS_DIR/base.nix"
 sudo cp "$REPO_DIR/nixfiles/roles/${INSTALL_TYPE,,}.nix" "$NIXOS_DIR/role.nix"
+
+# replace 'changeme' with actual username in base.nix
+echo "Updating username in base.nix from 'changeme' to '$TARGET_USER'..."
+sudo sed -i "s/changeme/$TARGET_USER/g" "$NIXOS_DIR/base.nix"
+
+# replace 'CHANGEME' with actual hostname in base.nix
+echo "Updating hostname in base.nix from 'CHANGEME' to '$TARGET_HOST'..."
+sudo sed -i "s/CHANGEME/$TARGET_HOST/g" "$NIXOS_DIR/base.nix"
 
 # create configuration.nix dynamically
 sudo tee "$NIXOS_DIR/configuration.nix" > /dev/null <<EOF
@@ -99,26 +123,40 @@ else
 fi
 
 # apply dotfiles
-echo "Applying dotfiles for $HW_TYPE..."
-USER_HOME="/home/$USER"
-cp -r "$REPO_DIR/dotfiles/dots/." "$HOME/.config/"
+echo "Applying dotfiles for $HW_TYPE to future user $TARGET_USER..."
+TARGET_USER_HOME="/home/$TARGET_USER"
+
+# create the target user's home directory and .config if they don't exist
+sudo mkdir -p "$TARGET_USER_HOME/.config"
+
+# copy dotfiles to target user's home
+sudo cp -r "$REPO_DIR/dotfiles/." "$TARGET_USER_HOME/.config/"
 
 if [ "$HW_TYPE" = "Laptop" ]; then
-    rm -rf "$HOME/.config/waybar/"
-    cp -r "$HOME/.config/laptop-specific/waybar/" "$HOME/.config/"
-    rm -rf "$HOME/.config/laptop-specific/"
+    sudo rm -rf "$TARGET_USER_HOME/.config/waybar/"
+    sudo cp -r "$TARGET_USER_HOME/.config/laptop-specific/waybar/" "$TARGET_USER_HOME/.config/"
+    sudo rm -rf "$TARGET_USER_HOME/.config/laptop-specific/"
 fi
 
-echo "Dotfiles successfully applied."
-chown -R "$USER:$(id -gn "$USER")" "$HOME/.config/"
-echo "Permissions granted for dotfile usage."
+echo "Dotfiles successfully applied to $TARGET_USER_HOME/.config/"
+
+# set proper ownership for the target user (this will work after rebuild when user exists)
+echo "Setting ownership of dotfiles to $TARGET_USER (will take effect after user creation)..."
+sudo chown -R 1000:users "$TARGET_USER_HOME/" 2>/dev/null || echo "Note: Will set proper ownership after rebuild"
 
 # rebuild system
 echo "Rebuilding NixOS..."
 sudo nixos-rebuild switch
 
+# fix ownership after user creation
+echo "Fixing ownership of dotfiles after user creation..."
+sudo chown -R "$TARGET_USER:users" "/home/$TARGET_USER/"
+
 # exit message
-echo "Bootstrap complete. Reboot recommended. Don't forget to run passwd!"
+echo "Bootstrap complete. Reboot recommended."
+echo "Your new user is: $TARGET_USER"
+echo "Default password is: temp"
+echo "Don't forget to run 'sudo passwd $TARGET_USER' to change the password!"
 echo " ~ If you're using an Nvidia GPU, take a look at base.nix before doing so-and do research, since Nvidia GPUs + Linux + Hyprland = Hell"
 
 if [ "$INSTALL_TYPE" = "Full" ]; then
@@ -128,5 +166,3 @@ else
 fi
 
 echo "  Enjoy :) "
-
-
