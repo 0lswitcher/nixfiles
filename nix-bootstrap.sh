@@ -46,7 +46,7 @@ else
     MODE="Offline"
 fi
 
-echo "Selected mode: $MODE"  # debug output
+echo "Selected mode: $MODE"  # Debug output
 
 if [ "$MODE" = "Online" ]; then
     echo "Running in Online mode - cloning repositories..."
@@ -60,11 +60,15 @@ fi
 
 # install type
 INSTALL_TYPE=$(prompt "Select installation type:" "Server" "Minimal" "Full")
-echo "Selected installation type: $INSTALL_TYPE"  # debug output
+echo "Selected installation type: $INSTALL_TYPE"  # Debug output
 
 # hardware type
 HW_TYPE=$(prompt "Select hardware:" "Desktop" "Laptop")
-echo "Selected hardware type: $HW_TYPE"  # debug output
+echo "Selected hardware type: $HW_TYPE"  # Debug output
+
+# extract stateVersion from existing configuration.nix before overwriting it
+echo "Extracting system.stateVersion from existing configuration..."
+NIXOS_VER=$(grep "system.stateVersion" "$NIXOS_DIR/configuration.nix" 2>/dev/null || true)
 
 # write configuration.nix
 echo "Generating configuration.nix with imports..."
@@ -84,16 +88,19 @@ sudo tee "$NIXOS_DIR/configuration.nix" > /dev/null <<EOF
 }
 EOF
 
-# append configuration.nix w/ nixos ver. generated on initial install
-NIXOS_VER=$(grep "system.stateVersion" /etc/nixos/configuration.nix || true)
+# append configuration.nix w/ nixos ver. extracted from original file
 if [[ -n "$NIXOS_VER" ]]; then
+    echo "Adding system.stateVersion: $NIXOS_VER"
     echo "  $NIXOS_VER" | sudo tee -a "$NIXOS_DIR/configuration.nix" > /dev/null
+else
+    echo "Warning: Could not find system.stateVersion in original configuration.nix"
+    echo "You may need to add it manually or run nixos-generate-config first"
 fi
 
 # apply dotfiles
 echo "Applying dotfiles for $HW_TYPE..."
 USER_HOME="/home/$USER"
-cp -r "$REPO_DIR/dotfiles/." "$HOME/.config/"
+cp -r "$REPO_DIR/dotfiles/dots/." "$HOME/.config/"
 
 if [ "$HW_TYPE" = "Laptop" ]; then
     rm -rf "$HOME/.config/waybar/"
@@ -120,4 +127,5 @@ else
 fi
 
 echo "  Enjoy :) "
+
 
