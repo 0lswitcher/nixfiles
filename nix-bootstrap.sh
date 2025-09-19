@@ -8,19 +8,19 @@ DOTFILES_REPO="https://github.com/0lswitcher/dotfiles.git"
 NIXFILES_REPO="https://github.com/0lswitcher/nixfiles.git"
 NIXOS_DIR="/etc/nixos"
 
-
 prompt() {
     local message="$1"
     shift
     local options=("$@")
     local choice
-    echo "$message"
+    
+    echo "$message" >&2  # send prompt to stderr so it doesn't interfere with return value
     select choice in "${options[@]}"; do
         if [[ -n "$choice" ]]; then
-            echo "$choice"
-            break
+            echo "$choice"  # goes to stdout and will be captured
+            return 0
         else
-            echo "Invalid choice."
+            echo "Invalid choice. Please try again." >&2
         fi
     done
 }
@@ -46,19 +46,25 @@ else
     MODE="Offline"
 fi
 
+echo "Selected mode: $MODE"  # debug output
+
 if [ "$MODE" = "Online" ]; then
+    echo "Running in Online mode - cloning repositories..."
     clone_or_update_repo "$DOTFILES_REPO" "$REPO_DIR/dotfiles"
     clone_or_update_repo "$NIXFILES_REPO" "$REPO_DIR/nixfiles"
 else
+    echo "Running in Offline mode..."
     read -rp "Enter the path where offline repos are located: " OFFLINE_PATH
     REPO_DIR="$OFFLINE_PATH"
 fi
 
 # install type
 INSTALL_TYPE=$(prompt "Select installation type:" "Server" "Minimal" "Full")
+echo "Selected installation type: $INSTALL_TYPE"  # debug output
 
 # hardware type
 HW_TYPE=$(prompt "Select hardware:" "Desktop" "Laptop")
+echo "Selected hardware type: $HW_TYPE"  # debug output
 
 # write configuration.nix
 echo "Generating configuration.nix with imports..."
@@ -80,17 +86,19 @@ EOF
 
 # append configuration.nix w/ nixos ver. generated on initial install
 NIXOS_VER=$(grep "system.stateVersion" /etc/nixos/configuration.nix || true)
-echo "  $NIXOS_VER" | sudo tee -a "$NIXOS_DIR/configuration.nix" > /dev/null
+if [[ -n "$NIXOS_VER" ]]; then
+    echo "  $NIXOS_VER" | sudo tee -a "$NIXOS_DIR/configuration.nix" > /dev/null
+fi
 
 # apply dotfiles
 echo "Applying dotfiles for $HW_TYPE..."
 USER_HOME="/home/$USER"
-cp -r -f "$REPO_DIR/dotfiles/." "$HOME/.config/"
+cp -r "$REPO_DIR/dotfiles/." "$HOME/.config/"
 
 if [ "$HW_TYPE" = "Laptop" ]; then
-    sudo rm -R "$HOME/.config/waybar/"
-    cp -r -f "$HOME/.config/laptop-specific/waybar/" "$HOME/.config/"
-    sudo rm -R "$HOME/.config/laptop-specific/waybar/"
+    rm -rf "$HOME/.config/waybar/"
+    cp -r "$HOME/.config/laptop-specific/waybar/" "$HOME/.config/"
+    rm -rf "$HOME/.config/laptop-specific/"
 fi
 
 echo "Dotfiles successfully applied."
@@ -112,3 +120,4 @@ else
 fi
 
 echo "  Enjoy :) "
+
