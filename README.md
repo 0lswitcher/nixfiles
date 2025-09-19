@@ -15,6 +15,9 @@
 ### Yo, welcome to my NixOS configuration files.  
 Below I've included details for the structure of this directory so you can have a better idea of what you're looking at. 
 
+> [!WARNING]
+> This repository is under heavy construction atm since im adding nix-bootstrap.sh functionality, hang tight and things will clean up soon. Updating this README will come last. Look forward to it! Cool things to come.
+
 Each name is a seperate machine within my homelab using NixOS as its operating system.  
 
 > Minimal is a slimmer `configuration.nix` that serves as a good starting point.
