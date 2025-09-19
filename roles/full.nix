@@ -8,6 +8,7 @@
 
 { config, pkgs, ... }:
 
+{
 
 # ░█▀█░█▀█░█▀▀░█░█░█▀█░█▀▀░█▀▀░█▀▀░░░░
 # ░█▀▀░█▀█░█░░░█▀▄░█▀█░█░█░█▀▀░▀▀█░░▀░
@@ -204,3 +205,5 @@
     NIXOS_OZONE_WL = "1"; # for vencord/vesktop and any other electron based pkgs
     PYTHONHISTFILE = "$HOME/.cache/.python_history"; # relocate file that tries to reside in $HOME
   };
+
+}
