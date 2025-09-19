@@ -6,7 +6,7 @@ set -euo pipefail
 REPO_DIR="/tmp/nix-bootstrap"
 DOTFILES_REPO="https://github.com/0lswitcher/dotfiles.git"
 NIXFILES_REPO="https://github.com/0lswitcher/nixfiles.git"
-WALLPAPERS_REPO-"https://github.com/0lswitcher/wallpapers.git"
+WALLPAPERS_REPO="https://github.com/0lswitcher/wallpapers.git"
 NIXOS_DIR="/etc/nixos"
 
 prompt() {
