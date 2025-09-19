@@ -85,13 +85,14 @@ sudo tee "$NIXOS_DIR/configuration.nix" > /dev/null <<EOF
     ./role.nix
     ./hardware-configuration.nix
   ];
-}
+
 EOF
 
 # append configuration.nix w/ nixos ver. extracted from original file
 if [[ -n "$NIXOS_VER" ]]; then
     echo "Adding system.stateVersion: $NIXOS_VER"
     echo "  $NIXOS_VER" | sudo tee -a "$NIXOS_DIR/configuration.nix" > /dev/null
+    echo "}" | sudo tee -a "$NIXOS_DIR/configuration.nix" > /dev/null
 else
     echo "Warning: Could not find system.stateVersion in original configuration.nix"
     echo "You may need to add it manually or run nixos-generate-config first"
