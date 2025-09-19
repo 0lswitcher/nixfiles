@@ -130,7 +130,7 @@ TARGET_USER_HOME="/home/$TARGET_USER"
 sudo mkdir -p "$TARGET_USER_HOME/.config"
 
 # copy dotfiles to target user's home
-sudo cp -r "$REPO_DIR/dotfiles/." "$TARGET_USER_HOME/.config/"
+sudo cp -r "$REPO_DIR/dotfiles/dots/." "$TARGET_USER_HOME/.config/"
 
 if [ "$HW_TYPE" = "Laptop" ]; then
     sudo rm -rf "$TARGET_USER_HOME/.config/waybar/"
