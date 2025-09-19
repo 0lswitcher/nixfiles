@@ -7,7 +7,7 @@ REPO_DIR="/tmp/nix-bootstrap"
 DOTFILES_REPO="https://github.com/0lswitcher/dotfiles.git"
 NIXFILES_REPO="https://github.com/0lswitcher/nixfiles.git"
 NIXOS_DIR="/etc/nixos"
-NIXOS_VER="cat /etc/nixos/configuration.nix | grep 'system.stateVersion'"
+
 
 prompt() {
     local message="$1"
@@ -16,8 +16,12 @@ prompt() {
     local choice
     echo "$message"
     select choice in "${options[@]}"; do
-        echo "$choice"
-        return
+        if [[ -n "$choice" ]]; then
+            echo "$choice"
+            break
+        else
+            echo "Invalid choice."
+        fi
     done
 }
 
@@ -69,26 +73,28 @@ sudo tee "$NIXOS_DIR/configuration.nix" > /dev/null <<EOF
   imports = [
     ./base.nix
     ./role.nix
-    ./hardware-configuratuion.nix
+    ./hardware-configuration.nix
   ];
 }
 EOF
 
 # append configuration.nix w/ nixos ver. generated on initial install
-cat /etc/nixos/configuration.nix >> "$NIXOS_VER"
+NIXOS_VER=$(grep "system.stateVersion" /etc/nixos/configuration.nix || true)
+echo "  $NIXOS_VER" | sudo tee -a "$NIXOS_DIR/configuration.nix" > /dev/null
 
 # apply dotfiles
 echo "Applying dotfiles for $HW_TYPE..."
 USER_HOME="/home/$USER"
 cp -r -f "$REPO_DIR/dotfiles/." "$HOME/.config/"
 
-if [ "HW_TYPE" = "Laptop" ]; then
+if [ "$HW_TYPE" = "Laptop" ]; then
     sudo rm -R "$HOME/.config/waybar/"
     cp -r -f "$HOME/.config/laptop-specific/waybar/" "$HOME/.config/"
+    sudo rm -R "$HOME/.config/laptop-specific/waybar/"
 fi
 
 echo "Dotfiles successfully applied."
-chown -R "$USER:$GROUPS" "$HOME"
+chown -R "$USER:$(id -gn "$USER")" "$HOME/.config/"
 echo "Permissions granted for dotfile usage."
 
 # rebuild system
