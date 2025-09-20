@@ -141,8 +141,7 @@ sudo mkdir -p "$TARGET_USER_HOME/.config"
 
 # copy dotfiles to target user's home and clean up after
 sudo cp -r "$REPO_DIR/dotfiles/dots/." "$TARGET_USER_HOME/.config/"
-sudo cp -r "$TARGET_USER_HOME/.config/cache/wal/" "$TARGET_USER_HOME/.cache/"
-sudo rm -rf "$TARGET_USER_HOME/.config/cache/"
+sudo cp -r "$REPO_DIR/dotfiles/cache/wal/" "$TARGET_USER_HOME/.cache/"
 if [ "$HW_TYPE" = "Laptop" ]; then
     sudo rm -rf "$TARGET_USER_HOME/.config/waybar/"
     sudo cp -r "$TARGET_USER_HOME/.config/laptop-specific/waybar/" "$TARGET_USER_HOME/.config/"
