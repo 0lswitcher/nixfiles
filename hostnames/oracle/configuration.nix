@@ -26,7 +26,7 @@
   # bootloader
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.loader.timeout = 1;
+  boot.loader.timeout = lib.mkForce 1;
   boot.kernelParams = [ "random.trust_cpu=on" ];
   
   # ensure latest linux kernel is installed (disabled for nvidia drivers)
@@ -56,6 +56,7 @@
   # enable opengl
   hardware.graphics = {
     enable = true;
+    enable32Bit = true; # for VR
   };
 
   # load nvidia driver for xorg and wayland
@@ -64,7 +65,7 @@
   hardware.nvidia = {
     modesetting.enable = true;
     powerManagement.enable = false;
-    powerManagement.finegrained = false; # turns of gpu when not being used
+    powerManagement.finegrained = false; # turns off gpu when not being used
     open = true;
     nvidiaSettings = true; # accessible via 'nvidia-settings'
     package = config.boot.kernelPackages.nvidiaPackages.stable;
@@ -72,6 +73,14 @@
 
   hardware.bluetooth.enable = true; # enables support for bluetooth
   hardware.bluetooth.powerOnBoot = true; # powers up the default bluetooth controller on boot
+
+  # enable logitech sim setup drivers
+  hardware.logitech.wireless.enable = true; # Enables HID support
+  hardware.new-lg4ff.enable = true; # Adds support for Logitech wheels
+  
+  # enable steam hardware detection for VR
+  hardware.steam-hardware.enable = true;
+
 
   # enable OpenTabletDriver
   # hardware.opentabletdriver.enable = true;
@@ -85,7 +94,7 @@
     y2k = {
      initialPassword = "temp";
      isNormalUser = true;
-     extraGroups = [ "wheel" "networkmanager" "audio" "video" "docker" ]; # sudo, the rest are self expl.
+     extraGroups = [ "wheel" "networkmanager" "audio" "video" "docker" "input" "adbusers" "plugdev" ]; # sudo, the rest are self expl.
      packages = with pkgs; [];
    };
   };
@@ -103,6 +112,7 @@
   fonts.packages = with pkgs; [
     nerd-fonts.hack
     nerd-fonts.jetbrains-mono
+    helvetica-neue-lt-std
   ];
 
 # ░█▀█░█▀█░█▀▀░█░█░█▀█░█▀▀░█▀▀░█▀▀░░░░
@@ -111,6 +121,7 @@
 
   nixpkgs.config = {
     allowUnfree = true;
+ #   cudaSupport = true;
     nvidia.acceptLicense = true; 
     permittedInsecurePackages = [
     	"ventoy-1.1.05"
@@ -123,12 +134,19 @@
 
                     # main
     foot #---------------------------------# terminal
+    alacritty #----------------------------# terminal
     micro #--------------------------------# text editor
-    vscodium #-----------------------------# text editor
+    vscodium #-----------------------------# IDE
+    python3Full #--------------------------# python lang
+    rustup #-------------------------------# rust lang
     obsidian #-----------------------------# note taking
     firefox #------------------------------# web browser
     feh #----------------------------------# image viewer
     mpv #----------------------------------# media player
+    kdePackages.kdenlive #-----------------# video editor
+    (blender.override { #------------------# 3D FOSS (with cuda support)
+        cudaSupport = true;
+    }) 
     btop #---------------------------------# resource manager   
     ncspot #-------------------------------# TUI music player
     qalculate-qt #-------------------------# calculator
@@ -136,24 +154,35 @@
     vesktop #------------------------------# discord alternative
     ulauncher #----------------------------# search & run programs
     git #----------------------------------# version control sys
+    aria2 #--------------------------------# CLI IDM
     wget #---------------------------------# world wide web get
     fzf #----------------------------------# fuzzy finder
     jq #-----------------------------------# JSON processor    
     socat #--------------------------------# SOcket CAT
     killall #------------------------------# process termination
-    thefuck #------------------------------# command correction
+    playerctl #----------------------------# music/media player controller
+    nixos-generators #---------------------# generates custom ISOs
+    gpu-screen-recorder-gtk #--------------# GUI GPU screen recorder
+
+                   # DAW
+    reaper #-------------------------------# DAW
+    helm #---------------------------------# synth plugin
 
                   # gaming
     mangohud #-----------------------------# performance monitor
     protonup-qt #--------------------------# compatability layer
     heroic #-------------------------------# compatability layer
     prismlauncher #------------------------# minecraft launcher
+    vkbasalt #-----------------------------# vulkan post processing layer
 
                   # storage
     ranger #-------------------------------# CLI file manager
     lxqt.pcmanfm-qt #----------------------# file manager
     file-roller #--------------------------# GUI extraction tool
-    unzip #--------------------------------# CLI extraction tool             
+    unzip #--------------------------------# CLI extraction tool 
+    unrar-free #---------------------------# CLI RAR extaction tool  
+    unetbootin #---------------------------# bootable drive maker     
+    cdrtools #-----------------------------# variety of cd,dvd, and boot tools     
     ncdu #---------------------------------# disk usage analyzer
     dysk #---------------------------------# disk usage analyzer   
     usbutils #-----------------------------# usb tools
@@ -163,12 +192,14 @@
 
                     # fun
     astroterm #----------------------------# celestial viewer
+    cava #---------------------------------# audio visualizer
     pipes #--------------------------------# terminal screensaver
     lolcat #-------------------------------# rainbow echo
     fastfetch #----------------------------# system information
 
              # desktop environment
     swww #---------------------------------# wallpaper daemon
+    hyprpaper #----------------------------# wallpaper backend for waypaper
     waypaper #-----------------------------# GUI wallpaper setter
     waybar #-------------------------------# status bar
     hyprpicker #---------------------------# color picker
@@ -186,6 +217,14 @@
  #  openrgb #------------------------------# FOSS rgb control
     via #----------------------------------# keyboard configurator
     pavucontrol #--------------------------# audio management
+    oversteer #----------------------------# GUI Sim Config
+    input-remapper #-----------------------# GUI keeb n mouse + gamepad mapping
+    alvr #---------------------------------# VR link
+    wivrn #--------------------------------# VR link
+    android-tools #------------------------# required for ADB/Wired connection
+    vulkan-loader #------------------------# loads vulkan extensions
+    vulkan-validation-layers #-------------# self expl.
+    vulkan-extension-layer #---------------# self expl.
  
                  # theming
     nwg-look #-----------------------------# GUI GTK theming          
@@ -202,6 +241,7 @@
     gowall #-------------------------------# convert wallpaper to theme
 
            # dependencies & portals
+    clang #--------------------------------# c compiler / linker
     egl-wayland #--------------------------# backend for wayland
     glm #----------------------------------# dependancy for hyprgrass
     libnotify #----------------------------# dependancy for swaync 
@@ -209,6 +249,10 @@
     xdg-desktop-portal-gtk #---------------# backend for GTK apps
     xdg-desktop-portal-hyprland #----------# backend for hyprland
     kdePackages.xdg-desktop-portal-kde #---# backend for Qt/KDE apps
+    python312Packages.textual #------------# TUI framework for python
+    gettext #------------------------------# translation tools (envsubst for vintagestory)
+    dotnetCorePackages.runtime_8_0-bin #---# .NET runtime 8 for vintagestory
+    protontricks #-------------------------# proton features
   ];
 
 # ░█▀█░█▀▄░█▀█░█▀▀░█▀▄░█▀█░█▄█░█▀▀░░░░
@@ -220,7 +264,31 @@
 
   programs.steam.enable = true;
   programs.steam.gamescopeSession.enable = true;
+  programs.steam.remotePlay.openFirewall = true;
   programs.gamemode.enable = true;
+
+  programs.gpu-screen-recorder.enable = true;
+
+  # OBS
+  programs.obs-studio = {
+    enable = true;
+    
+    # nvidia hardware acceleration
+    package = (
+      pkgs.obs-studio.override {
+        cudaSupport = true;
+      }
+    );
+    
+    # plugins
+    plugins = with pkgs.obs-studio-plugins; [
+      wlrobs
+      obs-backgroundremoval
+      obs-pipewire-audio-capture
+      obs-gstreamer
+      obs-vkcapture
+    ];
+  };
 
   # Some programs need SUID wrappers, can be configured further or are started in user sessions.
   # programs.mtr.enable = true;
@@ -274,15 +342,39 @@
   # enable CUPS to print documents
   # services.printing.enable = true;
 
-  # enable flatpak (ik :/ it's just for spicetify)
+  # enable flatpak (ik :/ it's just for spotify + spicetify)
   services.flatpak.enable = true;
 
   # Enable the X11 windowing system.
-  # services.xserver.enable = true;
+  services.xserver.enable = true;
 
   # Configure keymap in X11
   # services.xserver.xkb.layout = "us";
   # services.xserver.xkb.options = "eurosign:e,caps:escape";
+
+  # enable wivrn
+  services.wivrn = {
+    enable = true;
+    openFirewall = true; # Required for connection
+  #  defaultRuntime = true;
+  };
+
+  # enable monado
+  services.monado = {
+    enable = true;
+    defaultRuntime = true; 
+  };
+  
+  # enable input-remapper
+  services.input-remapper.enable = true;
+
+  # enable udev rules for via and oversteer
+  services.udev = {
+  	packages = with pkgs; [
+  	  qmk-udev-rules
+  	  oversteer
+  	];
+  };
 
   # enable the OpenSSH daemon
   # services.openssh.enable = true;
@@ -304,10 +396,16 @@
        8384 # syncthing web ui
       22000 # syncthing TCP
       42051 # vaultwarden (SSH tunnel port)
+       7777 # dinkum
+      24680 # ventoy
+      
     ];
      allowedUDPPorts = [
       22000 # syncthing QUIC
       21027 # syncthing local discovery
+      27015 # dinkum
+       7777 # dinkum
+      24680 # ventoy
     ];
   };
 
@@ -340,6 +438,7 @@
 
   environment.sessionVariables = {
     NIXOS_OZONE_WL = "1";
+    PYTHONHISTFILE = "$HOME/.cache/.python_history";
   };
 
   system.stateVersion = "24.11"; # leave ts alone

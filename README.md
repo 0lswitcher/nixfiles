@@ -20,7 +20,7 @@ Below I've included details for the structure of this directory so you can have 
 
 Each name is a seperate machine within my homelab using NixOS as its operating system.  
 
-> Minimal is a slimmer `configuration.nix` that serves as a good starting point.
+> Minimal is a slimmer `configuration.nix` that serves as a good starting point. It still contains a fully fledged hyprland desktop, it's just designed to be a launch point for your own pkgs.
 
 <details>
   <summary>Smith</summary>

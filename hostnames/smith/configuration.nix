@@ -89,6 +89,7 @@
 
   # main packages block
   environment.systemPackages = with pkgs; [
+    git #----------------# version control
     micro #--------------# text editor
     wget #---------------# world wide web get
     ranger #-------------# file browser
@@ -118,7 +119,7 @@
   		PasswordAuthentication = false; 
   		AllowUsers = [ "y2k" ];
   	};
-  	allowSFTP = false;
+  	allowSFTP = true;
   };
 
 
@@ -197,6 +198,7 @@
    53872 # monicaCRM
     9640 # dumbpad
     9641 # dumbkan
+    5673 # urocissa
    52805 # komodo Oracle periphery
     8384 # syncthing web ui
    22000 # syncthing TCP
