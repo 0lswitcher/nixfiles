@@ -18,7 +18,8 @@
     allowUnfree = true;
     nvidia.acceptLicense = true; 
     permittedInsecurePackages = [
-    	"ventoy-1.1.05"
+    	"ventoy-1.1.10"
+    	"electron-36.9.5"
     ];
   };
 
@@ -27,38 +28,56 @@
 
 
                     # main
-    foot #---------------------------------# terminal
-    alacritty #----------------------------# terminal
+#   foot #---------------------------------# terminal                        (installed via programs.foot.enable = true;)
     micro #--------------------------------# text editor
+#   neovim #-------------------------------# vim fork                        (installed via programs.neovim.enable = true;)
+    neovide #------------------------------# GUI for neovim
     vscodium #-----------------------------# IDE
-    python3Full #--------------------------# python lang
     rustup #-------------------------------# rust lang
     obsidian #-----------------------------# note taking
-    firefox #------------------------------# web browser
+#   firefox #------------------------------# web browser                     (installed via programs.firefox.enable = true;)
     feh #----------------------------------# image viewer
     mpv #----------------------------------# media player
+    (blender.override { #------------------# 3D FOSS (with cuda support)
+        cudaSupport = true;
+    }) 
     btop #---------------------------------# resource manager   
     ncspot #-------------------------------# TUI music player
     qalculate-qt #-------------------------# calculator
     ventoy-full #--------------------------# create bootable USB's
     vesktop #------------------------------# discord alternative
-    ulauncher #----------------------------# search & run programs
-    git #----------------------------------# version control sys
+    ripgrep #------------------------------# TSS + grep
+    aria2 #--------------------------------# CLI IDM
     wget #---------------------------------# world wide web get
+#   git #----------------------------------# version control system          (installed via programs.git.enable = true;)
     fzf #----------------------------------# fuzzy finder
-    jq #-----------------------------------# JSON processor    
+    fd #-----------------------------------# find alternative
+    jq #-----------------------------------# JSON processor
     socat #--------------------------------# SOcket CAT
+    stow #---------------------------------# symlink farm manager
     killall #------------------------------# process termination
+    playerctl #----------------------------# music/media player controller
     nixos-generators #---------------------# generates custom ISOs
 
+                 # music prod.
+    reaper #-------------------------------# DAW
+    helm #---------------------------------# synth plugin
+
+                 # video prod.
+    gpu-screen-recorder-gtk #--------------# self expl.                      (backend installed via programs.gpu-screen-recorder.enable = true;)
+#   obs-studio #---------------------------# open brodcasting software       (installed via programs.obs-studio.enable = true;)
+    kdePackages.kdenlive #-----------------# video editor
+
                   # gaming
+#   steam #--------------------------------# game distribution platform      (installed via programs.steam.enable = true;)
     mangohud #-----------------------------# performance monitor
     protonup-qt #--------------------------# compatability layer
     heroic #-------------------------------# compatability layer
     prismlauncher #------------------------# minecraft launcher
+    vkbasalt #-----------------------------# vulkan post processing layer
 
                   # storage
-    ranger #-------------------------------# CLI file manager
+    ranger #-------------------------------# TUI file manager                (installed via programs.ranger.enable = true;)
     lxqt.pcmanfm-qt #----------------------# file manager
     file-roller #--------------------------# GUI extraction tool
     unzip #--------------------------------# CLI extraction tool 
@@ -74,15 +93,18 @@
 
                     # fun
     astroterm #----------------------------# celestial viewer
+    cava #---------------------------------# audio visualizer
     pipes #--------------------------------# terminal screensaver
     lolcat #-------------------------------# rainbow echo
     fastfetch #----------------------------# system information
 
              # desktop environment
+#   hyprland #-----------------------------# tiling wayland compositor        (installed via programs.hyprland.enable = true;)
     swww #---------------------------------# wallpaper daemon
     hyprpaper #----------------------------# wallpaper backend for waypaper
     waypaper #-----------------------------# GUI wallpaper setter
-    waybar #-------------------------------# status bar
+#   waybar #-------------------------------# status bar                      (installed via programs.waybar.enable = true;)
+    ulauncher #----------------------------# search & run programs    
     hyprpicker #---------------------------# color picker
     hyprshot #-----------------------------# screenshot utility
     hyprpolkitagent #----------------------# authentication daemon
@@ -93,11 +115,19 @@
     bluez #--------------------------------# bluetooth protocol stack
     bluetui #------------------------------# tui bluetooth manager
     brightnessctl #------------------------# self explanatory
- #  wdisplays #----------------------------# GUI display manager
- #  opentabletdriver #---------------------# tablet management
- #  openrgb #------------------------------# FOSS rgb control
+    wdisplays #----------------------------# GUI display manager
     via #----------------------------------# keyboard configurator
     pavucontrol #--------------------------# audio management
+    oversteer #----------------------------# GUI Sim Config
+    input-remapper #-----------------------# GUI keeb n mouse + gamepad mapping
+    alvr #---------------------------------# VR link
+    wivrn #--------------------------------# VR link
+    android-tools #------------------------# required for ADB/Wired connection
+    vulkan-loader #------------------------# loads vulkan extensions
+    vulkan-validation-layers #-------------# self expl.
+    vulkan-extension-layer #---------------# self expl.
+#   opentabletdriver #---------------------# tablet management               (installed via programs.opentabletdrive.enable = true;)
+#   openrgb #------------------------------# FOSS rgb control                (installed via programs.openrgb.enable = true;)
  
                  # theming
     nwg-look #-----------------------------# GUI GTK theming          
@@ -114,30 +144,66 @@
     gowall #-------------------------------# convert wallpaper to theme
 
            # dependencies & portals
-    clang #--------------------------------# c compiler / linker
+    clang #--------------------------------# c compiler / linker (for rustup)
     egl-wayland #--------------------------# backend for wayland
+    wl-clipboard #-------------------------# wayland clipboard utils
     glm #----------------------------------# dependancy for hyprgrass
     libnotify #----------------------------# dependancy for swaync 
     gtk3 #---------------------------------# GUI toolkit for GTK3     
+    xdg-user-dirs #------------------------# backend for user dirs
     xdg-desktop-portal-gtk #---------------# backend for GTK apps
     xdg-desktop-portal-hyprland #----------# backend for hyprland
     kdePackages.xdg-desktop-portal-kde #---# backend for Qt/KDE apps
-    python312Packages.textual #------------# TUI framework for python
     gettext #------------------------------# translation tools (envsubst for vintagestory)
     dotnetCorePackages.runtime_8_0-bin #---# .NET runtime 8 for vintagestory
     protontricks #-------------------------# proton features
+    deno #---------------------------------# secure runtime for JavaScript & TypeScript (dependancy for nvim markup plugin)
   ];
 
 # ░█▀█░█▀▄░█▀█░█▀▀░█▀▄░█▀█░█▄█░█▀▀░░░░
 # ░█▀▀░█▀▄░█░█░█░█░█▀▄░█▀█░█░█░▀▀█░░▀░
 # ░▀░░░▀░▀░▀▀▀░▀▀▀░▀░▀░▀░▀░▀░▀░▀▀▀░░▀░
 
-  programs.hyprland.enable = true;
+  programs.firefox.enable = true; #---------------# web browser
+  programs.foot.enable = true; #------------------# terminal
+  programs.git.enable = true; #-------------------# version control systemd-boot
+  programs.gpu-screen-recorder.enable = true; #---# self expl.
+  programs.hyprland.enable = true; #--------------# tiling wayland compositor
   programs.hyprland.xwayland.enable = true;
-
-  programs.steam.enable = true;
-  programs.steam.gamescopeSession.enable = true;
+  programs.neovim = { #---------------------------# vim fork
+    enable = true;
+    defaultEditor = true;
+  };
+  programs.obs-studio = { #-----------------------# open brodcasting software
+    enable = true;
+    # nvidia hardware acceleration
+    package = ( 
+      pkgs.obs-studio.override {
+        cudaSupport = true;
+      }
+    );
+    # plugins
+    plugins = with pkgs.obs-studio-plugins; [
+      wlrobs
+      obs-backgroundremoval
+      obs-pipewire-audio-capture
+      obs-gstreamer
+      obs-vkcapture
+    ];
+  };
+  programs.steam = { #----------------------------# game distribution platform
+    enable = true;
+    gamescopeSession.enable = true;
+    remotePlay.openFirewall = true;
+  };
   programs.gamemode.enable = true;
+  programs.waybar.enable = true; #----------------# status bar
+
+  # run unpatched dynamic binaries (immutable file system problems ts)
+  programs.nix-ld.enable = true;
+
+  # enable gsettings backend (commented out for now - this was for kando)
+  # programs.dconf.enable = true;
 
   # Some programs need SUID wrappers, can be configured further or are started in user sessions.
   # programs.mtr.enable = true;

@@ -20,7 +20,9 @@
   # main packages block
   environment.systemPackages = with pkgs; [
     micro #--------------# text editor
+    neovim #-------------# vim fork
     wget #---------------# world wide web get
+    git #----------------# version control sys.
     ranger #-------------# file browser
     unzip #--------------# CLI extraction tool
     ncdu #---------------# disk usage analyzer
