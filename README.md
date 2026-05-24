@@ -17,7 +17,8 @@ Below I've included details for the structure of this directory so you can have 
 
 > [!TIP]
 > This repository has recently been overhauled for the new `nix-bootstrap.sh`! \
-> Read below to learn more about the new script, and make sure to leave some feedback after trying it out! Thanks y'all o7
+> Read below to learn more about the new script, and make sure to leave some feedback after trying it out! \
+> Thanks y'all o7
 
 Each hostname is a seperate machine within my homelab using NixOS as its operating system;
 
@@ -38,9 +39,8 @@ Each hostname is a seperate machine within my homelab using NixOS as its operati
 
 <details>
   <summary>Neo</summary>
-  ~~This directory includes the configuration.nix file for Neo, a laptop that serves as my on-the-go workstation.~~<br>
-  ~~Configured more for laptop use, and works great in tandem with my wayland/hyprland waybar config for Neo that contains laptop-specific things like a battery life indicator.~~<br>
-  This directory is under construction until further notice, check out the [README](hostnames/neo/README.md) for more information!
+  This directory is under construction until further notice, \
+  check out the [README](hostnames/neo/README.md) for more information!
 </details>
 
 
