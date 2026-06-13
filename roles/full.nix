@@ -18,7 +18,6 @@
     allowUnfree = true;
     nvidia.acceptLicense = true; 
     permittedInsecurePackages = [
-    	"ventoy-1.1.10"
     	"electron-36.9.5"
     ];
   };
@@ -38,13 +37,12 @@
 #   firefox #------------------------------# web browser                     (installed via programs.firefox.enable = true;)
     feh #----------------------------------# image viewer
     mpv #----------------------------------# media player
-    (blender.override { #------------------# 3D FOSS (with cuda support)
-        cudaSupport = true;
-    }) 
+#    (blender.override { #------------------# 3D FOSS (with cuda support)
+#        cudaSupport = true;
+#    }) 
     btop #---------------------------------# resource manager   
     ncspot #-------------------------------# TUI music player
     qalculate-qt #-------------------------# calculator
-    ventoy-full #--------------------------# create bootable USB's
     vesktop #------------------------------# discord alternative
     ripgrep #------------------------------# TSS + grep
     aria2 #--------------------------------# CLI IDM
@@ -56,6 +54,7 @@
     socat #--------------------------------# SOcket CAT
     stow #---------------------------------# symlink farm manager
     killall #------------------------------# process termination
+    tealdeer #-----------------------------# tldr - short man pages
     playerctl #----------------------------# music/media player controller
     nixos-generators #---------------------# generates custom ISOs
 
@@ -100,7 +99,7 @@
 
              # desktop environment
 #   hyprland #-----------------------------# tiling wayland compositor        (installed via programs.hyprland.enable = true;)
-    swww #---------------------------------# wallpaper daemon
+    awww #---------------------------------# wallpaper daemon                (previously swww) 
     hyprpaper #----------------------------# wallpaper backend for waypaper
     waypaper #-----------------------------# GUI wallpaper setter
 #   waybar #-------------------------------# status bar                      (installed via programs.waybar.enable = true;)
@@ -129,7 +128,7 @@
 #   opentabletdriver #---------------------# tablet management               (installed via programs.opentabletdrive.enable = true;)
 #   openrgb #------------------------------# FOSS rgb control                (installed via programs.openrgb.enable = true;)
  
-                 # theming
+                 # theming                
     nwg-look #-----------------------------# GUI GTK theming          
     kdePackages.qt6ct #--------------------# GUI Qt theming            
     kdePackages.qtwayland #----------------# wayland Qt plugin         
@@ -157,6 +156,7 @@
     gettext #------------------------------# translation tools (envsubst for vintagestory)
     dotnetCorePackages.runtime_8_0-bin #---# .NET runtime 8 for vintagestory
     protontricks #-------------------------# proton features
+    bc #-----------------------------------# GNU software calculator (for waybar > jvc84/wayves)
     deno #---------------------------------# secure runtime for JavaScript & TypeScript (dependancy for nvim markup plugin)
   ];
 
@@ -164,6 +164,7 @@
 # ░█▀▀░█▀▄░█░█░█░█░█▀▄░█▀█░█░█░▀▀█░░▀░
 # ░▀░░░▀░▀░▀▀▀░▀▀▀░▀░▀░▀░▀░▀░▀░▀▀▀░░▀░
 
+  programs.dconf.enable = true; #-----------------# for GTK
   programs.firefox.enable = true; #---------------# web browser
   programs.foot.enable = true; #------------------# terminal
   programs.git.enable = true; #-------------------# version control systemd-boot
@@ -270,6 +271,10 @@
   environment.sessionVariables = {
     NIXOS_OZONE_WL = "1"; # for vencord/vesktop and any other electron based pkgs
     PYTHONHISTFILE = "$HOME/.cache/.python_history"; # relocate file that tries to reside in $HOME
+    XDG_CONFIG_HOME = "$HOME/.config";
+    XDG_DATA_HOME   = "$HOME/.local/share";
+    XDG_STATE_HOME  = "$HOME/.local/state";
+    XDG_CACHE_HOME  = "$HOME/.cache";
   };
 
 }
