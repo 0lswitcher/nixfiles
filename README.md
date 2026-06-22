@@ -130,17 +130,17 @@ Which configures the following:
 
 To install and use the script from a fresh NixOS install, connect to the internet and run:
 ```
-$ curl -sLO https://raw.githubusercontent.com/0lswitcher/bash-scripts/refs/heads/main/scripts/nix-bootstrap.sh
+curl -sLO https://raw.githubusercontent.com/0lswitcher/bash-scripts/refs/heads/main/scripts/nix-bootstrap.sh
 ```
 
 Then, make the script executable:
 ```
-$ chmod +x ./nix-bootstrap.sh
+chmod +x ./nix-bootstrap.sh
 ```
 
 Finally, run it!
 ```
-$ bash ./nix-bootstrap.sh
+bash ./nix-bootstrap.sh
 ```
 
 ---
