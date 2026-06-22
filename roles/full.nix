@@ -37,7 +37,8 @@
 #   firefox #------------------------------# web browser                     (installed via programs.firefox.enable = true;)
     feh #----------------------------------# image viewer
     mpv #----------------------------------# media player
-#    (blender.override { #------------------# 3D FOSS (with cuda support)
+    imagemagick #--------------------------# everything bitmap img
+#    (blender.override { #------------------# 3D FOSS (with cuda support)    (commented out bc fuck the manual build times)
 #        cudaSupport = true;
 #    }) 
     btop #---------------------------------# resource manager   
@@ -99,10 +100,12 @@
 
              # desktop environment
 #   hyprland #-----------------------------# tiling wayland compositor        (installed via programs.hyprland.enable = true;)
-    awww #---------------------------------# wallpaper daemon                (previously swww) 
+    awww #---------------------------------# wallpaper daemon                 (previously swww) 
     hyprpaper #----------------------------# wallpaper backend for waypaper
     waypaper #-----------------------------# GUI wallpaper setter
-#   waybar #-------------------------------# status bar                      (installed via programs.waybar.enable = true;)
+#   waybar #-------------------------------# status bar                       (installed via programs.waybar.enable = true;)
+    waybar-lyric #-------------------------# lyric module for waybar
+    kando #--------------------------------# pie menu
     ulauncher #----------------------------# search & run programs    
     hyprpicker #---------------------------# color picker
     hyprshot #-----------------------------# screenshot utility
@@ -175,23 +178,23 @@
     enable = true;
     defaultEditor = true;
   };
-  programs.obs-studio = { #-----------------------# open brodcasting software
-    enable = true;
-    # nvidia hardware acceleration
-    package = ( 
-      pkgs.obs-studio.override {
-        cudaSupport = true;
-      }
-    );
-    # plugins
-    plugins = with pkgs.obs-studio-plugins; [
-      wlrobs
-      obs-backgroundremoval
-      obs-pipewire-audio-capture
-      obs-gstreamer
-      obs-vkcapture
-    ];
-  };
+#  programs.obs-studio = { #-----------------------# open brodcasting software
+#    enable = true;
+#    # nvidia hardware acceleration
+#    package = ( 
+#      pkgs.obs-studio.override {
+#        cudaSupport = true;
+#      }
+#    );
+#    # plugins
+#    plugins = with pkgs.obs-studio-plugins; [
+#      wlrobs
+#      obs-backgroundremoval
+#      obs-pipewire-audio-capture
+#      obs-gstreamer
+#      obs-vkcapture
+#    ];
+#  };
   programs.steam = { #----------------------------# game distribution platform
     enable = true;
     gamescopeSession.enable = true;
